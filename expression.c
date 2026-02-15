@@ -47,7 +47,18 @@ int precedence(char op)
  * Checks if the infix expression is valid.
  * - Balanced parentheses?
  * - Correct operator placement?
- * - Valid characters only?
+ * - Valid characters only? (digits and operators only - no letters)
+ * 
+ * Examples of invalid expressions:
+ *   "5 + a"      - Contains letter 'a'
+ *   "5 ++ 3"     - Consecutive operators
+ *   "(5+3"       - Unbalanced parentheses (missing closing )
+ *   "5+3)"       - Unbalanced parentheses (missing opening ()
+ *   "+5+3"       - Starts with operator
+ *   "5+3+"       - Ends with operator
+ *   "5 3 +"      - Missing operator between operands
+ *   "5 + *3"     - Consecutive operators
+ *   "5 + (3*4"   - Unbalanced parentheses
  */
 int isValidInfix(const char *expr)
 {
@@ -77,10 +88,8 @@ int isValidInfix(const char *expr)
             expectOperand = 0;   /* Now expect an operator */
         }
         else if (isalpha((unsigned char)c)) {
-            if (!expectOperand)  /* Letter after operand without operator */
-                return 0;
-            inNumber = 0;
-            expectOperand = 0;   /* Now expect an operator */
+            /* REJECT ALPHABETIC CHARACTERS */
+            return 0;  /* Variables/letters are not allowed */
         }
         else if (isOperator(c)) {
             if (expectOperand)   /* Operator when operand expected */
@@ -166,10 +175,7 @@ void infixToPostfix(const char *infix, char *postfix)
         if (isdigit((unsigned char)c)) {
             p = appendNumberToPostfix(p, postfix, &idx, &needSpace);
         }
-        /* Handle single-letter variables */
-        else if (isalpha((unsigned char)c)) {
-            appendCharToPostfix(postfix, &idx, &needSpace, c);
-        }
+        /* Note: We don't handle alphabetic characters anymore since isValidInfix rejects them */
         else if (c == '(') {
             PUSH(opStack, top, c);
         }
@@ -255,33 +261,90 @@ int evaluatePostfix(const char *postfix)
 }
 
 /* ============================================================
+ * Function: clearInputBuffer
+ * Clears any remaining characters in the input buffer
+ * ============================================================ */
+static void clearInputBuffer(void)
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+/* ============================================================
+ * Function: printInvalidExpressionExamples
+ * Prints examples of invalid expressions to help users
+ * ============================================================ */
+static void printInvalidExpressionExamples(void)
+{
+    printf("\n");
+    printf("Examples of INVALID expressions:\n");
+    printf("  \"5 + a\"      - Contains letter 'a' (letters not allowed)\n");
+    printf("  \"5 ++ 3\"     - Consecutive operators\n");
+    printf("  \"(5+3\"       - Unbalanced parentheses (missing ')')\n");
+    printf("  \"5+3)\"       - Unbalanced parentheses (missing '(')\n");
+    printf("  \"+5+3\"       - Starts with operator\n");
+    printf("  \"5+3+\"       - Ends with operator\n");
+    printf("  \"5 3 +\"      - Missing operator between operands\n");
+    printf("  \"5 + *3\"     - Consecutive operators\n\n");
+    
+    printf("Examples of VALID expressions:\n");
+    printf("  \"5+3\"        - Simple addition\n");
+    printf("  \"10 - 4\"     - Subtraction with spaces\n");
+    printf("  \"(5+3)*2\"    - With parentheses\n");
+    printf("  \"10/2\"       - Division\n");
+    printf("  \"15%%4\"      - Modulo operator\n");
+    printf("  \"5 + 6 + (6 * 4) %% 12\"  - Complex expression\n");
+}
+
+/* ============================================================
  * Function: handleExpressionEvaluator
  * Main workflow: input -> validate -> convert -> evaluate
+ * Loops until user chooses to exit
  * ============================================================ */
 void handleExpressionEvaluator(void)
 {
     char infix[MAX_EXPR_SIZE];
     char postfix[MAX_EXPR_SIZE];
+    char choice;
+    int keepRunning = 1;
     char *newline;
 
     printf("\n=== Expression Evaluator ===\n");
-    printf("Enter an infix expression: ");
+    printf("This program evaluates arithmetic expressions using +, -, *, /, %% operators.\n");
+    printf("Only digits, operators, parentheses, and spaces are allowed.\n");
+    printf("Variables/letters are NOT allowed.\n");
+    
+    while (keepRunning) {
+        printf("\nEnter an infix expression: ");
+        
+        if (fgets(infix, MAX_EXPR_SIZE, stdin) == NULL)
+            break;
 
-    if (fgets(infix, MAX_EXPR_SIZE, stdin) == NULL)
-        return;
+        /* Remove trailing newline */
+        if ((newline = strchr(infix, '\n')) != NULL)
+            *newline = '\0';
 
-    /* Remove trailing newline */
-    if ((newline = strchr(infix, '\n')) != NULL)
-        *newline = '\0';
+        printf("\nInfix   : %s\n", infix);
 
-    printf("\nInfix   : %s\n", infix);
+        if (!isValidInfix(infix)) {
+            printf("Invalid expression!\n");
+            printf("Use only digits, operators (+, -, *, /, %%), and parentheses.\n");
+            printf("Variables/letters are NOT allowed.\n");
+            printInvalidExpressionExamples();
+        } else {
+            infixToPostfix(infix, postfix);
+            printf("Postfix : %s\n", postfix);
+            printf("Result  : %d\n", evaluatePostfix(postfix));
+        }
 
-    if (!isValidInfix(infix)) {
-        printf("Invalid infix expression.\n");
-        return;
+        /* Ask if user wants to continue */
+        printf("\nDo you want to evaluate another expression? (y/n): ");
+        choice = getchar();
+        clearInputBuffer();  /* Clear any remaining characters */
+        
+        if (choice != 'y' && choice != 'Y') {
+            keepRunning = 0;
+            printf("Exiting Expression Evaluator. Goodbye!\n");
+        }
     }
-
-    infixToPostfix(infix, postfix);
-    printf("Postfix : %s\n", postfix);
-    printf("Result  : %d\n", evaluatePostfix(postfix));
 }

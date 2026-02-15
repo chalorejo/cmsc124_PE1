@@ -82,9 +82,9 @@ void handleProgramDescription(void)
     printf("PROGRAM DESCRIPTION\n");
     printf("--------------------------------------------------------------------------------\n");
     printf("Developers:\n");
-    printf("  - Joe Hanna Cantero (Student No. 202X-XXXXX)\n");
+    printf("  - Joe Hanna Cantero (Student No. 2024-06242)\n");
     printf("  - Charisse Lorejo (Student No. 2024-03304)\n");
-    printf("  - Michael James Mangaron (Student No. 202X-XXXXX)\n\n");
+    printf("  - Michael James Mangaron (Student No. 2024-02909)\n\n");
     
     printf("Module Descriptions:\n");
     printf("  [2] Expression Evaluator: Converts infix to postfix and evaluates it.\n");
