@@ -176,9 +176,18 @@ void handleStringCompression(void) {
             printf("Compressed Form : %s\n", output);
         }
 
-        printf("Repeat? (y/n) : ");
-        scanf(" %c", &repeat);
-        getchar();        
+        do {
+            printf("Repeat? (y/n) : ");
+            scanf(" %c", &repeat);
+            getchar();
+
+            if (repeat != 'Y' && repeat != 'y' &&
+                repeat != 'N' && repeat != 'n') {
+                printf("Invalid input. Please enter y or n only.\n");
+            }
+        } while (repeat != 'Y' && repeat != 'y' &&
+                repeat != 'N' && repeat != 'n');
+                       
     } while (repeat == 'y' || repeat == 'Y');
 }
 
@@ -199,8 +208,17 @@ void handleStringExpansion(void) {
             printf("Expanded Form : %s\n", output);
         }
 
-        printf("Repeat? (y/n) : ");
-        scanf(" %c", &repeat);
-        getchar();
+        do {
+            printf("Repeat? (y/n) : ");
+            scanf(" %c", &repeat);
+            getchar();
+
+            if (repeat != 'Y' && repeat != 'y' &&
+                repeat != 'N' && repeat != 'n') {
+                printf("Invalid input. Please enter y or n only.\n");
+            }
+        } while (repeat != 'Y' && repeat != 'y' &&
+                repeat != 'N' && repeat != 'n');
+
     } while (repeat == 'y' || repeat == 'Y');
 }
