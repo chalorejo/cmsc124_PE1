@@ -1,11 +1,15 @@
 /*
-CMSC 124: 
-    Program Exercise 1
-Developers:
-    Joe Hanna Cantero
-    Charisse Lorejo
-    Michael James Mangaron
-*/
+ * CMSC 124 - Programming Exercise 1
+ * 
+ * Developers:
+ *   Joe Hanna Cantero
+ *   Charisse Lorejo
+ *   Michael James Mangaron
+ * 
+ * Description:
+ *   Main entry point for the application. Handles the main menu
+ *   and delegates tasks to specific modules.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,10 +21,9 @@ void displayMainMenu(void);
 int getMenuChoice(void);
 
 /* Menu handlers */
+/* Menu handlers */
 void handleProgramDescription(void);
-void handleExpressionEvaluator(void);
-void handleStringCompression(void);
-void handleStringExpansion(void);
+/* Other handlers are already in headers or will be linked */
 
 int main(void)
 {
@@ -71,4 +74,29 @@ int getMenuChoice(void)
     scanf("%d", &choice);
     getchar(); /* clear newline */
     return choice;
+}
+
+void handleProgramDescription(void)
+{
+    printf("\n--------------------------------------------------------------------------------\n");
+    printf("PROGRAM DESCRIPTION\n");
+    printf("--------------------------------------------------------------------------------\n");
+    printf("Developers:\n");
+    printf("  - Joe Hanna Cantero (Student No. 202X-XXXXX)\n");
+    printf("  - Charisse Lorejo (Student No. 2024-03304)\n");
+    printf("  - Michael James Mangaron (Student No. 202X-XXXXX)\n\n");
+    
+    printf("Module Descriptions:\n");
+    printf("  [2] Expression Evaluator: Converts infix to postfix and evaluates it.\n");
+    printf("  [3] String Compression: Compresses strings (e.g., 'aaabb' -> 'a3b2').\n");
+    printf("  [4] String Expansion: Expands compressed strings (e.g., 'a3b2' -> 'aaabb').\n\n");
+    
+    printf("Work Distribution:\n");
+    printf("  - Cantero: Expression Evaluator Logic\n");
+    printf("  - Lorejo: Main Menu and Integration\n");
+    printf("  - Mangaron: String Operations Logic\n\n");
+    
+    printf("Press Enter to return to the main menu...");
+    while (getchar() != '\n'); 
+    getchar(); /* Wait for Enter */
 }

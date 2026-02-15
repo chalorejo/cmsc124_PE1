@@ -1,12 +1,12 @@
 /*
  * expression.c
- * Implementation of Expression Evaluator Module
+ * 
+ * Handles infix-to-postfix conversion and expression evaluation.
  *
- * CMSC 124: Program Exercise 1
  * Developers:
- *     Joe Hanna Cantero
- *     Charisse Lorejo
- *     Michael James Mangaron
+ *   Joe Hanna Cantero
+ *   Charisse Lorejo
+ *   Michael James Mangaron
  */
 
 #include <stdio.h>
@@ -14,10 +14,7 @@
 #include <string.h>
 #include "expression.h"
 
-/* ============================================================
- * Stack Operation Macros
- * Provides clean, reusable stack operations for char and int
- * ============================================================ */
+/* Stack helpers */
 #define PUSH(stack, top, val)    ((stack)[++(top)] = (val))
 #define POP(stack, top)          ((stack)[(top)--])
 #define PEEK(stack, top)         ((stack)[(top)])
@@ -46,15 +43,12 @@ int precedence(char op)
     }
 }
 
-/* ============================================================
- * Function: isValidInfix
- * Single-pass validation checking:
- *   - Valid characters only (operands, operators, parentheses)
- *   - Balanced parentheses
- *   - No consecutive operators
- *   - No operator at start/end or after '(' or before ')'
- *   - Supports multi-digit numbers and single-letter variables
- * ============================================================ */
+/* 
+ * Checks if the infix expression is valid.
+ * - Balanced parentheses?
+ * - Correct operator placement?
+ * - Valid characters only?
+ */
 int isValidInfix(const char *expr)
 {
     int parenDepth = 0;
@@ -150,11 +144,10 @@ static const char* appendNumberToPostfix(const char *p, char *postfix, int *idx,
     return p - 1;  /* Return pointer to last digit (loop will increment) */
 }
 
-/* ============================================================
- * Function: infixToPostfix
- * Converts infix to postfix using array-based operator stack.
- * Output is space-separated. Supports multi-digit numbers.
- * ============================================================ */
+/* 
+ * Converts infix to postfix using a stack.
+ * Handles multi-digit numbers and spaces.
+ */
 void infixToPostfix(const char *infix, char *postfix)
 {
     char opStack[MAX_STACK_SIZE];
@@ -221,11 +214,10 @@ static int parseNumber(const char **p)
     return num;
 }
 
-/* ============================================================
- * Function: evaluatePostfix
- * Evaluates postfix expression with multi-digit operands.
- * Includes division by zero protection.
- * ============================================================ */
+/*
+ * Evaluates the postfix expression.
+ * Returns the integer result.
+ */
 int evaluatePostfix(const char *postfix)
 {
     int stack[MAX_STACK_SIZE];

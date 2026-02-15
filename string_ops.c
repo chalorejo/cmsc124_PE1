@@ -1,3 +1,13 @@
+/*
+ * string_ops.c
+ *
+ * Implements string compression and expansion.
+ *
+ * Developers:
+ *   Joe Hanna Cantero
+ *   Charisse Lorejo
+ *   Michael James Mangaron
+ */
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -30,29 +40,71 @@ int isValidCompressedString(const char *str) {
     while (str[i] != '\0') {
         hasDigit = 0;
         
-        /* if it encounter a digit, check for leading zeros */
         if (isdigit(str[i])) {
+            hasDigit = 1;
             if (str[i] == '0') {
                 return 0;
             }
+
+            /* Check if the number is exactly "1" */
+            if (str[i] == '1' && !isdigit(str[i+1])) {
+                return 0;
+            }
             
-            /* Skip the rest of the digits in this number */
+            /* Skip digits */
             while (isdigit(str[i])) {
                 i++;
             }
         }
         
-        /* the digit (or no digit) must followed by a letter */
+        /* Must be followed by a letter */
         if (!isalpha(str[i])) {
             return 0;
         }
 
-        /* if digit exists, it must be positive and not zero */
-        if (hasDigit && str[i - 1] == '0') {
-            return 0;
-        }
-
-        /* move past the letter */
+        /* Check for n=1 case (if digit exists, it implies n>1, but logic here checks if previous was 0?? 
+           Wait, logic says: if hasDigit and str[i-1] == '0'. 
+           Actually, the "no leading zero" check above handles '0' start. 
+           But '10' is valid. '05' is invalid. 
+           The logic `if (hasDigit && str[i - 1] == '0')` checks if the LAST digit was 0? 
+           No, `str[i-1]` is the last digit. 
+           If number was "10", `str[i-1]` is '0'. This would fail valid numbers like 10, 20.
+           
+           Let's look at the original code:
+           if (hasDigit) { ... while (isdigit) i++; }
+           if (!isalpha) return 0;
+           if (hasDigit && str[i-1] == '0') return 0; 
+           
+           If input is "10a". 
+           i points to '1'. isdigit('1') -> true.
+           inner loop: skips '1', '0'. i points to 'a'.
+           hasDigit = ? (Original code didn't set hasDigit inside the `if` block properly? 
+           Wait, original code:
+           `hasDigit = 0;`
+           `if (isdigit(str[i])) { ... while... i++; }` -> It DOES NOT set hasDigit = 1.
+           So `hasDigit` is ALWAYS 0.
+           The check `if (hasDigit && ...)` is always false.
+           So "10a" works by accident?
+           Or was `hasDigit` supposed to be set?
+           
+           Actually, looking at the original code provided in previous turn:
+           `int hasDigit;` (uninitialized? No, declared at top).
+           `while (...) { hasDigit = 0; if (isdigit) { ... } ... }`
+           It seems `hasDigit` is indeed always 0 when reaching the check.
+           
+           The user wants me to FIX logic if broken. 
+           "10a" should be valid. 
+           "0a" should be invalid (caught by `if (str[i] == '0')`).
+           
+           The prompt says: "For n=1, the value of n should not be shown."
+           So "1a" is INVALID. "a" is VALID.
+           
+           I need to detect if the number matches "1".
+           
+           Let's fix the logic and comments.
+        */
+        
+        /* Move past the letter */
         i++;
     }
     return 1;
@@ -75,7 +127,7 @@ void compressString(const char *input, char *output) {
             j += sprintf(&output[j], "%d", count);
         }
 
-        /* to write the letter itself after the number */
+        /* Write letter */
         output[j++] = input[i];
         i++;
     }
@@ -89,7 +141,7 @@ void expandString(const char *input, char *output) {
     while (input[i] != '\0') {
         count = 0;
 
-        /* read multi-digit if present */
+        /* Read number if present */
         while (isdigit(input[i])) {
             count = count * 10 + (input[i] - '0');
             i++;
